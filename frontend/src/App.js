@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import FileUpload from './components/FileUpload';
+import UploadedFiles from './components/UploadedFiles';
+import ActivityLogs from './components/ActivityLogs';
 
-function App() {
+const App = () => {
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
+
+  useEffect(() => {
+    fetchFiles();
+    fetchActivityLogs();
+  }, []);
+
+  const fetchFiles = async () => {
+    const response = await axios.get('http://localhost:5000/files');
+    setUploadedFiles(response.data);
+  };
+
+  const fetchActivityLogs = async () => {
+    const response = await axios.get('http://localhost:5000/activity_logs');
+    setActivityLogs(response.data);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>File Uploader</h1>
+      <FileUpload fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />
+      <UploadedFiles uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />
+      <ActivityLogs activityLogs={activityLogs} />
     </div>
   );
-}
+};
 
 export default App;
