@@ -1,0 +1,6 @@
+flask==2.0.3
+pymongo==3.12.3
+pypdf==3.2.0
+python-docx==0.8.11
+flask-cors==3.0.10
+fpdf==1.7.2
