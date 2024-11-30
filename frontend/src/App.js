@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import FileUpload from './components/FileUpload';
-import UploadedFiles from './components/UploadedFiles';
-import ActivityLogs from './components/ActivityLogs';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import HomePage from './pages/HomePage';
+import FilesPage from './pages/FilesPage';
+import LogsPage from './pages/LogsPage';
+import './App.css';
 
 const App = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -24,12 +27,22 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <h1>File Uploader</h1>
-      <FileUpload fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />
-      <UploadedFiles uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />
-      <ActivityLogs activityLogs={activityLogs} />
-    </div>
+    <Router>
+      <div className="App">
+        <NavBar />
+        <Switch>
+          <Route path="/" exact>
+            <HomePage fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />
+          </Route>
+          <Route path="/files">
+            <FilesPage uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />
+          </Route>
+          <Route path="/logs">
+            <LogsPage activityLogs={activityLogs} />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 };
 
