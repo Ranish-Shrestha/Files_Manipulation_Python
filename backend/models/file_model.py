@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from bson import ObjectId
 
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://ranishstha:NjIXxKkVbbScg34q@filescluster.vi3ts.mongodb.net/?retryWrites=true&w=majority&appName=filesCluster')
 db = client['fileDB']
 
 file_collection = db['files']
