@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import HomePage from './pages/HomePage';
 import FilesPage from './pages/FilesPage';
@@ -30,17 +30,11 @@ const App = () => {
     <Router>
       <div className="App">
         <NavBar />
-        <Switch>
-          <Route path="/" exact>
-            <HomePage fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />
-          </Route>
-          <Route path="/files">
-            <FilesPage uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />
-          </Route>
-          <Route path="/logs">
-            <LogsPage activityLogs={activityLogs} />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path="/" element={<HomePage fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />} />
+          <Route path="/files" element={<FilesPage uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />} />
+          <Route path="/logs" element={<LogsPage activityLogs={activityLogs} />} />
+        </Routes>
       </div>
     </Router>
   );
