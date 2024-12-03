@@ -1,5 +1,7 @@
 # Files_Manipulation_Python
+
 ### Installation
+
 ```sh
-pip install flask pymongo pypdf python-docx flask-cors PyMuPDF
+pip install fastapi uvicorn pymongo pypdf python-docx python-multipart fpdf2
 ```

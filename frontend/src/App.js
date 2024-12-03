@@ -17,12 +17,12 @@ const App = () => {
   }, []);
 
   const fetchFiles = async () => {
-    const response = await axios.get('http://localhost:5000/files');
+    const response = await axios.get('http://localhost:8000/files');
     setUploadedFiles(response.data);
   };
 
   const fetchActivityLogs = async () => {
-    const response = await axios.get('http://localhost:5000/activity_logs');
+    const response = await axios.get('http://localhost:8000/activity_logs');
     setActivityLogs(response.data);
   };
 

@@ -1,99 +1,76 @@
-import os
-import docx
-from pypdf import PdfReader
 from bson import ObjectId
-from datetime import datetime
-from pymongo import MongoClient
-from flask import jsonify, send_file
+from fastapi import HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from models.file_model import file_collection, log_collection, file_schema, log_schema
+from utils.json_utils import convert_objectid
+from utils.file_utils import read_docx, read_pdf, generate_pdf, generate_docx
 
-def read_pdf(file_path):
-    reader = PdfReader(file_path)
-    text = "".join(page.extract_text() for page in reader.pages)
-    return text
-
-def read_docx(file_path):
-    doc = docx.Document(file_path)
-    text = "\n".join(para.text for para in doc.paragraphs)
-    return text
-
-def log_activity(action, details):
+async def log_activity(action, details):
     log_collection.insert_one(log_schema(action, details))
 
-def upload_file_service(request):
-    if 'files' not in request.files:
-        return jsonify({"error": "No files part"}), 400
-
-    files = request.files.getlist('files')
-    if not files:
-        return jsonify({"error": "No selected files"}), 400
-
+async def upload_file_service(files: list[UploadFile]):
     responses = []
 
     for file in files:
         if file.filename == '':
-            continue
+            raise HTTPException(status_code=400, detail="File name is empty")
 
-        file_path = os.path.join("uploads", file.filename)
-        file.save(file_path)
+        # Manually handle filename and extension extraction
+        filename_parts = file.filename.rsplit('.', 1)
+        if len(filename_parts) != 2:
+            raise HTTPException(status_code=400, detail="File must have an extension")
+        
+        filename_without_extension, file_extension = filename_parts
 
-        if file.filename.endswith('.pdf'):
-            text = read_pdf(file_path)
-        elif file.filename.endswith('.docx'):
-            text = read_docx(file_path)
+        if file_extension.lower() == 'pdf':
+            text = await read_pdf(file)
+        elif file_extension.lower() == 'docx':
+            text = await read_docx(file)
         else:
-            responses.append({"filename": file.filename, "status": "Unsupported file type"})
+            responses.append({"filename": filename_without_extension, "status": "Unsupported file type"})
             continue
 
-        file_record = file_schema(file.filename, os.path.splitext(file.filename)[1], os.path.getsize(file_path), text)
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="File content is empty")
+
+        # Read file content into memory to get the exact size
+        file.file.seek(0)
+        content = file.file.read()
+        file_size = len(content)
+
+        file_record = file_schema(filename_without_extension, f".{file_extension}", file_size, text)
         file_collection.insert_one(file_record)
-        log_activity("upload", {"filename": file.filename})
-        responses.append({"filename": file.filename, "status": "File uploaded and content stored"})
+        await log_activity("upload", {"filename": filename_without_extension})
+        responses.append({"filename": filename_without_extension, "status": "File uploaded and content stored"})
 
-    return jsonify(responses), 200
+    return responses
 
-def get_files_service():
+async def get_files_service():
     files = list(file_collection.find({}, {'content': 0}))
-    return jsonify(files), 200
+    return convert_objectid(files)
 
-def generate_pdf(content, filename):
-    from fpdf import FPDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    for line in content.split("\n"):
-        pdf.cell(200, 10, txt=line, ln=True)
-    output_path = os.path.join("downloads", filename + ".pdf")
-    pdf.output(output_path)
-    return output_path
-
-def generate_docx(content, filename):
-    doc = docx.Document()
-    for line in content.split("\n"):
-        doc.add_paragraph(line)
-    output_path = os.path.join("downloads", filename + ".docx")
-    doc.save(output_path)
-    return output_path
-
-def download_file_service(file_id, file_type):
+async def download_file_service(file_id, file_type):
     file_record = file_collection.find_one({"_id": ObjectId(file_id)})
     if not file_record:
-        return jsonify({"error": "File not found"}), 404
+        raise HTTPException(status_code=404, detail="File not found")
 
     filename = file_record["filename"]
     content = file_record["content"]
 
     if file_type == "pdf":
-        file_path = generate_pdf(content, filename)
+        buffer = await generate_pdf(content)
+        media_type = "application/pdf"
     elif file_type == "docx":
-        file_path = generate_docx(content, filename)
+        buffer = await generate_docx(content)
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     else:
-        return jsonify({"error": "Unsupported file type"}), 400
+        raise HTTPException(status_code=400, detail="Unsupported file type")
 
     file_collection.update_one({"_id": ObjectId(file_id)}, {"$inc": {"download_count": 1}})
-    log_activity("download", {"filename": file_record["filename"], "file_type": file_type})
-    return send_file(file_path, as_attachment=True)
+    await log_activity("download", {"filename": file_record["filename"], "file_type": file_type})
 
-def get_activity_log_service():
+    return StreamingResponse(buffer, media_type=media_type, headers={"Content-Disposition": f"attachment; filename={filename}.{file_type}"})
+
+async def get_activity_log_service():
     logs = list(log_collection.find())
-    return jsonify(logs), 200
+    return convert_objectid(logs)
