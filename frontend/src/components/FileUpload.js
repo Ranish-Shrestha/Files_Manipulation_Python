@@ -12,7 +12,7 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
 
   const handleFileChange = (e) => {
     setMessages([]);
-    setShowMessage(!showMessage);
+    setShowMessage(false);
 
     setErrors([]);
     const errors = [];
@@ -27,14 +27,14 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
     }
 
     setErrors(errors);
-    setFiles(e.target.files);
+    setFiles(filteredFiles);
   };
 
   const validateFiles = (files) => {
     const errors = [];
     const validFiles = [];
 
-    Array.from(files).forEach(file => {
+    files.forEach(file => {
       if (file.size === 0) {
         errors.push(`${file.name} is empty.`);
       } else {
@@ -48,45 +48,45 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
 
   const handleFileUpload = async () => {
     setMessages([]);
-    setShowMessage(!showMessage);
+    setShowMessage(false);
 
     const validFiles = validateFiles(files);
 
     if (validFiles.length === 0) {
-      return; // No valid files to upload 
+      return; // No valid files to upload
     }
 
     const formData = new FormData();
-    Array.from(files).forEach(file => formData.append('files', file));
+    validFiles.forEach(file => formData.append('files', file)); // Use validFiles instead of files
 
-    await axios.post('http://localhost:8000/upload', formData)
-      .then(res => {
-        setFiles([]);
-        setErrors([]);
-        setInputKey(Date.now());
+    try {
+      const res = await axios.post('http://localhost:8000/upload', formData);
+      setFiles([]);
+      setErrors([]);
+      setInputKey(Date.now());
 
-        let msg = [], errs = [];
-        res.data.forEach((data) => {
-          if (data.status_code === 200) {
-            msg.push(`File: ${data.filename} - Status: ${data.status}`);
-          }
-          else {
-            errs.push(`File: ${data.filename} - Status: ${data.status} - Error Code: ${data.status_code}`);
-          }
-        })
-
-        setMessages(msg);
-        setErrors(errs);
-
-        setShowMessage(true);
-
-        fetchFiles();
-        fetchActivityLogs();
-      })
-      .catch(err => {
-        console.log(err.response.data.detail)
-        setErrors(err.response.data.detail);
+      let msg = [], errs = [];
+      res.data.forEach((data) => {
+        if (data.status_code === 200) {
+          msg.push(`File: ${data.filename} - Status: ${data.status}`);
+        } else {
+          errs.push(`File: ${data.filename} - Status: ${data.status} - Error Code: ${data.status_code}`);
+        }
       });
+
+      setMessages(msg);
+      setErrors(errs);
+
+      setShowMessage(true);
+
+      fetchFiles();
+      fetchActivityLogs();
+    } catch (err) {
+      let errs = [];
+      console.log(err.response?.data?.detail || 'Upload failed');
+      errs.push(err.response?.data?.detail || 'Upload failed');
+      setErrors(errs);
+    }
   };
 
   return (
@@ -99,28 +99,23 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
       {errors.length > 0 && (
         <Alert variant='danger'>
           <h4>Errors:</h4>
-          <ul> {errors.map((error, index) => (
+          <ul>{errors.map((error, index) => (
             <li key={index}>{error}</li>
-          ))}
-          </ul>
+          ))}</ul>
         </Alert>
       )}
-      {
-        messages.length > 0 &&
-        <ToastContainer className="p-3"
-          position='middle-center'
-          style={{ zIndex: 1 }}
-        >
+      {messages.length > 0 && (
+        <ToastContainer className="p-3" position='middle-center' style={{ zIndex: 1 }}>
           <Toast show={showMessage} onClose={toggleShowMessage} bg={'success'} style={{ width: '100%' }}>
             <Toast.Header>
               <strong className="me-auto">Success</strong>
             </Toast.Header>
             <Toast.Body className={'text-white'}>
-              <ul> {messages.map((msg, index) => <li key={index}>{msg}</li>)} </ul>
+              <ul>{messages.map((msg, index) => <li key={index}>{msg}</li>)}</ul>
             </Toast.Body>
           </Toast>
         </ToastContainer>
-      }
+      )}
     </div>
   );
 };

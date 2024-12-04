@@ -31,7 +31,7 @@ async def read_docx(file: UploadFile):
     except docx.opc.exceptions.PackageNotFoundError:
         raise HTTPException(status_code=400, detail="DOCX file is corrupted or encrypted and cannot be read")
     except Exception:
-        raise HTTPException(status_code=400, detail="Unable to read DOCX file")
+        raise HTTPException(status_code=400, detail=f"Unable to read {file.filename} file")
 
 async def generate_pdf(content):
     pdf_writer = FPDF()
