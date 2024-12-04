@@ -1,7 +1,6 @@
 from pymongo import MongoClient 
 from datetime import datetime
 
-# client = MongoClient('mongodb+srv://ranishstha:NjIXxKkVbbScg34q@filescluster.vi3ts.mongodb.net/?retryWrites=true&w=majority&appName=filesCluster')
 client = MongoClient('mongodb://localhost:27017/')
 db = client['fileDB'] 
 file_collection = db['files'] 
