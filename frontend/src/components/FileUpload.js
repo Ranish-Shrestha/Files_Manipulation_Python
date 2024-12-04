@@ -84,7 +84,7 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
         fetchActivityLogs();
       })
       .catch(err => {
-        let errs = err.data.length > 0 ? err.data.map((detail) => detail) : err.detail;
+        let errs = err.response.data.length > 0 ? err.response.data.map((detail) => detail) : err.response.data.detail;
         console.log(errs)
         setErrors(errs);
       });
