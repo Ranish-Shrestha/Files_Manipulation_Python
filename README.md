@@ -27,13 +27,13 @@ This project allows user to upload files (pdf or docx), extracts and the content
 
 ## Setup Instructions
 
-### Backend
-
 - Clone the repository
 
   ```sh
   https://github.com/Ranish-Shrestha/Files_Storage_Python.git
   ```
+
+### Backend
 
 - Change directory to backend project
 
