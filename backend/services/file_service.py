@@ -69,7 +69,12 @@ async def download_file_service(file_id, file_type):
     file_collection.update_one({"_id": ObjectId(file_id)}, {"$inc": {"download_count": 1}})
     await log_activity("download", {"filename": file_record["filename"], "file_type": file_type})
 
-    return StreamingResponse(buffer, media_type=media_type, headers={"Content-Disposition": f"attachment; filename={filename}.{file_type}"})
+    buffer.seek(0)
+    
+    response = StreamingResponse(buffer, media_type=media_type) 
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}.{file_type}" 
+    response.headers["Access-Control-Expose-Headers"] = "Content-Disposition" 
+    return response
 
 async def get_activity_log_service():
     logs = list(log_collection.find())

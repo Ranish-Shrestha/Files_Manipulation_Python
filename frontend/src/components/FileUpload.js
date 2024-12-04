@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, Form, InputGroup, Alert, Toast, ToastContainer } from 'react-bootstrap';
 
-const FileUpload = () => {
+const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState([]);
   const [inputKey, setInputKey] = useState(Date.now());
@@ -67,6 +67,9 @@ const FileUpload = () => {
 
         const messages = res.data.map((data) => 'File: ' + data.filename + ' Status: ' + data.status);
         setMessage(messages);
+
+        fetchFiles();
+        fetchActivityLogs();
       })
       .catch(err => {
         const errors = err.data.map((detail) => detail);

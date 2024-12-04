@@ -9,14 +9,24 @@ const UploadedFiles = ({ uploadedFiles, fetchFiles }) => {
       const response = await axios.get(`http://localhost:8000/download/${fileId}/${fileType}`, {
         responseType: 'blob'
       });
+
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = 'file';
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
+        if (filenameMatch.length === 2) {
+          filename = filenameMatch[1];
+        }
+      }
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `file.${fileType}`);
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
 
-      // Call fetchFiles to refresh the content 
       fetchFiles();
     }
     catch (error) {
