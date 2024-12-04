@@ -4,6 +4,36 @@
 
 This project allows user to upload files (pdf or docx), extracts and the content of those files in MongoDB database and download the stored content as a pdf or docx file. It includes a backend API built using FastAPI and a frontend application built with React.
 
+## Prerequisites
+
+Before setting up the project, please ensure the following already installed on system:
+
+1. **Python 3.x+**
+   - Download and install Python from the official [Python website](https://www.python.org/downloads/).
+
+2. **pip**
+   - `pip` is the package installer for Python. It usually comes pre-installed with Python. Verify the installation with:
+     ```sh
+     pip --version
+     ```
+   - If not installed, follow the instructions on the [pip installation page](https://pip.pypa.io/en/stable/installation/).
+
+3. **Node.js and npm**
+   - Node.js is a JavaScript runtime, and npm is the Node.js package manager. Download and install both from the official [Node.js website](https://nodejs.org/).
+   - Verify the installations with:
+     ```sh
+     node --version
+     npm --version
+     ```
+
+4. **MongoDB Compass**
+   - MongoDB Compass is a GUI for MongoDB that makes it easier to manage your databases. Download it from the [MongoDB Compass website](https://www.mongodb.com/try/download/compass).
+   - Alternatively, use the MongoDB CLI if preferable.
+
+### Additional Notes
+
+Make sure to restart terminal or command prompt after installing these tools to ensure they are properly recognized by the working system.
+
 ## Directory Structure
 
 - **backend**
