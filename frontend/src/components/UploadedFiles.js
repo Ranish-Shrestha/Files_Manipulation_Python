@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { Button, Table } from 'react-bootstrap';
 
-const UploadedFiles = ({ uploadedFiles, fetchFiles }) => {
+const UploadedFiles = ({ uploadedFiles, fetchFiles, fetchActivityLogs }) => {
 
   const handleFileDownload = async (fileId, fileType) => {
     try {
@@ -28,6 +28,7 @@ const UploadedFiles = ({ uploadedFiles, fetchFiles }) => {
       link.click();
 
       fetchFiles();
+      fetchActivityLogs();
     }
     catch (error) {
       console.error('Error downloading file:', error)

@@ -27,7 +27,7 @@ async def upload_file_service(files: list[UploadFile]):
         elif file_extension.lower() == 'docx':
             text = await read_docx(file)
         else:
-            responses.append({"filename": filename_without_extension, "status": "Unsupported file type"})
+            responses.append({"filename": file.filename, "status": "Unsupported file type", "status_code":415})
             continue
 
         if not text.strip():
@@ -40,8 +40,8 @@ async def upload_file_service(files: list[UploadFile]):
 
         file_record = file_schema(filename_without_extension, f".{file_extension}", file_size, text)
         file_collection.insert_one(file_record)
-        await log_activity("upload", {"filename": filename_without_extension})
-        responses.append({"filename": filename_without_extension, "status": "File uploaded and content stored"})
+        await log_activity("upload", {"filename": filename_without_extension, "file_type": file_extension})
+        responses.append({"filename": file.filename, "status": "File content stored", "status_code": 200})
 
     return responses
 

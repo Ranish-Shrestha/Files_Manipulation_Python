@@ -7,11 +7,11 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
   const [errors, setErrors] = useState([]);
   const [inputKey, setInputKey] = useState(Date.now());
   const [showMessage, setShowMessage] = useState(false);
-  const [message, setMessage] = useState([]);
+  const [messages, setMessages] = useState([]);
   const toggleShowMessage = () => setShowMessage(!showMessage);
 
   const handleFileChange = (e) => {
-    setMessage([]);
+    setMessages([]);
     setShowMessage(!showMessage);
 
     setErrors([]);
@@ -47,7 +47,7 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
   };
 
   const handleFileUpload = async () => {
-    setMessage([]);
+    setMessages([]);
     setShowMessage(!showMessage);
 
     const validFiles = validateFiles(files);
@@ -65,16 +65,28 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
         setErrors([]);
         setInputKey(Date.now());
 
-        const messages = res.data.map((data) => 'File: ' + data.filename + ' Status: ' + data.status);
-        setMessage(messages);
+        let msg = [], errs = [];
+        res.data.forEach((data) => {
+          if (data.status_code === 200) {
+            msg.push(`File: ${data.filename} - Status: ${data.status}`);
+          }
+          else {
+            errs.push(`File: ${data.filename} - Status: ${data.status} - Error Code: ${data.status_code}`);
+          }
+        })
+
+        setMessages(msg);
+        setErrors(errs);
+
+        setShowMessage(true);
 
         fetchFiles();
         fetchActivityLogs();
       })
       .catch(err => {
-        const errors = err.data.map((detail) => detail);
-        console.log(errors)
-        setErrors(errors);
+        let errs = err.data.length > 0 ? err.data.map((detail) => detail) : err.detail;
+        console.log(errs)
+        setErrors(errs);
       });
   };
 
@@ -94,9 +106,8 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
           </ul>
         </Alert>
       )}
-
       {
-        message.length > 0 &&
+        messages.length > 0 &&
         <ToastContainer className="p-3"
           position='middle-center'
           style={{ zIndex: 1 }}
@@ -106,7 +117,7 @@ const FileUpload = ({ fetchFiles, fetchActivityLogs }) => {
               <strong className="me-auto">Success</strong>
             </Toast.Header>
             <Toast.Body className={'text-white'}>
-              <ul> {message.map((msg, index) => <li key={index}>{msg}</li>)} </ul>
+              <ul> {messages.map((msg, index) => <li key={index}>{msg}</li>)} </ul>
             </Toast.Body>
           </Toast>
         </ToastContainer>

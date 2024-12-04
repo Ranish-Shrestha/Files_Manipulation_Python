@@ -32,7 +32,7 @@ const App = () => {
         <NavBar />
         <Routes>
           <Route path="/" element={<HomePage fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />} />
-          <Route path="/files" element={<FilesPage uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} />} />
+          <Route path="/files" element={<FilesPage uploadedFiles={uploadedFiles} fetchFiles={fetchFiles} fetchActivityLogs={fetchActivityLogs} />} />
           <Route path="/logs" element={<LogsPage activityLogs={activityLogs} />} />
         </Routes>
       </div>

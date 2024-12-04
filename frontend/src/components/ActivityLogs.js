@@ -9,6 +9,7 @@ const ActivityLogs = ({ activityLogs }) => {
           <tr>
             <th>Action</th>
             <th>File Name</th>
+            <th>File Extension</th>
             <th>Date & Time</th>
           </tr>
         </thead>
@@ -17,6 +18,7 @@ const ActivityLogs = ({ activityLogs }) => {
             <tr key={index}>
               <td>{log.action.charAt(0).toUpperCase() + log.action.slice(1)}</td>
               <td>{log.details.filename}</td>
+              <td>{log.details.file_type}</td>
               <td>{new Date(log.timestamp).toLocaleString()}</td>
             </tr>
           ))}
