@@ -416,6 +416,11 @@ https://github.com/Ranish-Shrestha/Files_Storage_Python.git
   uvicorn main:app --reload
   ```
 
+  or run this command if previous command is not working
+   ```sh
+  python -m uvicorn main:app --reload
+  ```
+
 ### Frontend
 
 - Open new cmd prompt and change directory to frontend project
