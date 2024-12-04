@@ -32,7 +32,7 @@ Before setting up the project, please ensure the following already installed on 
 
 ### Additional Notes
 
-Make sure to restart your terminal or command prompt after installing these tools to ensure they are properly recognized by your system.
+Make sure to restart terminal or command prompt after installing these tools to ensure they are properly recognized by the working system.
 
 ## Directory Structure
 
